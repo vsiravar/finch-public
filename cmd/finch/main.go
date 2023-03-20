@@ -37,7 +37,7 @@ func main() {
 	if err := xmain(logger, stdLib, fs, stdLib, mem, stdOut); err != nil {
 		logger.Fatal(err)
 	}
-	println("Test1")
+	println("Test2")
 }
 
 func xmain(logger flog.Logger,

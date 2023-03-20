@@ -38,6 +38,7 @@ func main() {
 		logger.Fatal(err)
 	}
 	println("Test2")
+
 }
 
 func xmain(logger flog.Logger,

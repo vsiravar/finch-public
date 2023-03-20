@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.1](https://github.com/vsiravar/finch-public/compare/v0.6.0...v0.6.1) (2023-03-20)
+
+
+### Bug Fixes
+
+* Revert "revert: "revert feat play with semver"" ([#50](https://github.com/vsiravar/finch-public/issues/50)) ([7de0195](https://github.com/vsiravar/finch-public/commit/7de01957505b21c64124d1198acdf0d89990422e))
+
 ## [0.6.0](https://github.com/vsiravar/finch-public/compare/v0.5.0...v0.6.0) (2023-03-20)
 
 

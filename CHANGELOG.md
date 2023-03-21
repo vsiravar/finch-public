@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.7.0](https://github.com/vsiravar/finch-public/compare/v0.6.2...v0.7.0) (2023-03-21)
+
+
+### Features
+
+* unintentional break ([f93bd36](https://github.com/vsiravar/finch-public/commit/f93bd360743c8e16c6df7ff16c84d4d98ff07195))
+* Unintentional breaking feature for testing ([#55](https://github.com/vsiravar/finch-public/issues/55)) ([bcbbfae](https://github.com/vsiravar/finch-public/commit/bcbbfae544aa0557775ae904c74346c755ebcf8b))
+
+
+### Revert a pull request
+
+* Revert "feat: Unintentional breaking feature for testing" ([#57](https://github.com/vsiravar/finch-public/issues/57)) ([377b78d](https://github.com/vsiravar/finch-public/commit/377b78dac7aa11a210d3f4deebf4b3617cd7717c))
+
 ## [0.6.2](https://github.com/vsiravar/finch-public/compare/v0.6.1...v0.6.2) (2023-03-20)
 
 

@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/golang/mock/gomock"
@@ -82,7 +83,7 @@ func TestNerdctlCommand_runAdaptor(t *testing.T) {
 
 func TestNerdctlCommand_run(t *testing.T) {
 	t.Parallel()
-
+	envFilePath := filepath.Join(string(filepath.Separator), "env-file")
 	testCases := []struct {
 		name    string
 		cmdName string
@@ -283,7 +284,7 @@ func TestNerdctlCommand_run(t *testing.T) {
 		{
 			name:    "with --env-file flag replacement",
 			cmdName: "run",
-			args:    []string{"--rm", "--env-file=/env-file", "alpine:latest", "env"},
+			args:    []string{"--rm", "--env-file=" + envFilePath, "alpine:latest", "env"},
 			wantErr: nil,
 			mockSvc: func(
 				t *testing.T,
@@ -294,7 +295,7 @@ func TestNerdctlCommand_run(t *testing.T) {
 				fs afero.Fs,
 			) {
 				envFileStr := "# a comment\nARG1=val1\n  ARG2\n\n  # a 2nd comment\nNOTSETARG\n  "
-				require.NoError(t, afero.WriteFile(fs, "/env-file", []byte(envFileStr), 0o600))
+				require.NoError(t, afero.WriteFile(fs, envFilePath, []byte(envFileStr), 0o600))
 
 				getVMStatusC := mocks.NewCommand(ctrl)
 				lcc.EXPECT().CreateWithoutStdio("ls", "-f", "{{.Status}}", limaInstanceName).Return(getVMStatusC)
@@ -316,7 +317,7 @@ func TestNerdctlCommand_run(t *testing.T) {
 		{
 			name:    "with --env-file flag replacement and existing env value",
 			cmdName: "run",
-			args:    []string{"--rm", "--env-file", "/env-file", "alpine:latest", "env"},
+			args:    []string{"--rm", "--env-file", envFilePath, "alpine:latest", "env"},
 			wantErr: nil,
 			mockSvc: func(
 				t *testing.T,
@@ -327,7 +328,7 @@ func TestNerdctlCommand_run(t *testing.T) {
 				fs afero.Fs,
 			) {
 				envFileStr := "# a comment\n  ARG2\n\n  # a 2nd comment\nNOTSETARG\n  "
-				require.NoError(t, afero.WriteFile(fs, "/env-file", []byte(envFileStr), 0o600))
+				require.NoError(t, afero.WriteFile(fs, envFilePath, []byte(envFileStr), 0o600))
 
 				getVMStatusC := mocks.NewCommand(ctrl)
 				lcc.EXPECT().CreateWithoutStdio("ls", "-f", "{{.Status}}", limaInstanceName).Return(getVMStatusC)
@@ -349,8 +350,8 @@ func TestNerdctlCommand_run(t *testing.T) {
 		{
 			name:    "with --env-file flag, but the specified file does not exist",
 			cmdName: "run",
-			args:    []string{"--rm", "--env-file", "/env-file", "alpine:latest", "env"},
-			wantErr: &os.PathError{Op: "open", Path: "/env-file", Err: afero.ErrFileNotFound},
+			args:    []string{"--rm", "--env-file", envFilePath, "alpine:latest", "env"},
+			wantErr: &os.PathError{Op: "open", Path: envFilePath, Err: afero.ErrFileNotFound},
 			mockSvc: func(
 				t *testing.T,
 				lcc *mocks.LimaCmdCreator,

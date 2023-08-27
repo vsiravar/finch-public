@@ -69,3 +69,7 @@ func (s *StdLib) Arch() string {
 func (s *StdLib) OS() string {
 	return runtime.GOOS
 }
+
+func (s *StdLib) GetUserHome() (string, error) {
+	return os.UserHomeDir()
+}

@@ -14,12 +14,14 @@ import (
 	"github.com/runfinch/finch/pkg/mocks"
 )
 
-func Test_applyDefaultsDarwin(t *testing.T) {
-	if runtime.GOOS != "darwin" {
-		t.Skip()
+func Test_applyDefaults(t *testing.T) {
+	var testCases []struct {
+		name    string
+		cfg     *Finch
+		mockSvc func(deps *mocks.LoadSystemDeps, mem *mocks.Memory)
+		want    *Finch
 	}
-	t.Parallel()
-	testCases := []struct {
+	darwinTestCases := []struct {
 		name    string
 		cfg     *Finch
 		mockSvc func(deps *mocks.LoadSystemDeps, mem *mocks.Memory)
@@ -88,28 +90,7 @@ func Test_applyDefaultsDarwin(t *testing.T) {
 		},
 	}
 
-	for _, tc := range testCases {
-		tc := tc
-		t.Run(tc.name, func(t *testing.T) {
-			t.Parallel()
-
-			ctrl := gomock.NewController(t)
-			deps := mocks.NewLoadSystemDeps(ctrl)
-			mem := mocks.NewMemory(ctrl)
-
-			tc.mockSvc(deps, mem)
-
-			got := applyDefaults(tc.cfg, deps, mem)
-			require.Equal(t, tc.want, got)
-		})
-	}
-}
-
-func Test_applyDefaultsWindows(t *testing.T) {
-	if runtime.GOOS != "windows" {
-		t.Skip()
-	}
-	testCases := []struct {
+	windowsTestCases := []struct {
 		name    string
 		cfg     *Finch
 		mockSvc func(deps *mocks.LoadSystemDeps, mem *mocks.Memory)
@@ -147,6 +128,14 @@ func Test_applyDefaultsWindows(t *testing.T) {
 			},
 		},
 	}
+	if runtime.GOOS == "darwin" {
+		testCases = darwinTestCases
+	} else if runtime.GOOS == "windows" {
+		testCases = windowsTestCases
+	} else {
+		t.Skip("Skipping tests for OS " + runtime.GOOS)
+	}
+	t.Parallel()
 
 	for _, tc := range testCases {
 		tc := tc

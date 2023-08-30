@@ -4,6 +4,7 @@
 package config
 
 import (
+	"runtime"
 	"testing"
 
 	"github.com/golang/mock/gomock"
@@ -13,9 +14,11 @@ import (
 	"github.com/runfinch/finch/pkg/mocks"
 )
 
-func Test_applyDefaults(t *testing.T) {
+func Test_applyDefaultsDarwin(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skip()
+	}
 	t.Parallel()
-
 	testCases := []struct {
 		name    string
 		cfg     *Finch
@@ -81,6 +84,49 @@ func Test_applyDefaults(t *testing.T) {
 				Memory:  pointer.String("2GiB"),
 				VMType:  pointer.String("qemu"),
 				Rosetta: pointer.Bool(false),
+			},
+		},
+	}
+
+	for _, tc := range testCases {
+		tc := tc
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			ctrl := gomock.NewController(t)
+			deps := mocks.NewLoadSystemDeps(ctrl)
+			mem := mocks.NewMemory(ctrl)
+
+			tc.mockSvc(deps, mem)
+
+			got := applyDefaults(tc.cfg, deps, mem)
+			require.Equal(t, tc.want, got)
+		})
+	}
+}
+
+func Test_applyDefaultsWindows(t *testing.T) {
+	if runtime.GOOS != "windows" {
+		t.Skip()
+	}
+	testCases := []struct {
+		name    string
+		cfg     *Finch
+		mockSvc func(deps *mocks.LoadSystemDeps, mem *mocks.Memory)
+		want    *Finch
+	}{
+		{
+			name: "happy path",
+			cfg:  &Finch{},
+			mockSvc: func(deps *mocks.LoadSystemDeps, mem *mocks.Memory) {
+				deps.EXPECT().NumCPU().Return(8)
+				// 12,884,901,888 == 12GiB
+				mem.EXPECT().TotalMemory().Return(uint64(12_884_901_888))
+			},
+			want: &Finch{
+				CPUs:   pointer.Int(2),
+				Memory: pointer.String("3GiB"),
+				VMType: pointer.String("wsl2"),
 			},
 		},
 	}

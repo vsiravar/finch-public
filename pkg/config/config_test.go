@@ -21,12 +21,40 @@ import (
 
 func TestLoad(t *testing.T) {
 	t.Parallel()
-	var testCases []struct {
+	var testCases = []struct {
 		name    string
 		path    string
 		mockSvc func(fs afero.Fs, l *mocks.Logger, deps *mocks.LoadSystemDeps, mem *mocks.Memory)
 		want    *Finch
 		wantErr error
+	}{
+		{
+			name: "config file does not contain valid YAML",
+			path: "/config.yaml",
+			mockSvc: func(fs afero.Fs, l *mocks.Logger, deps *mocks.LoadSystemDeps, mem *mocks.Memory) {
+				require.NoError(t, afero.WriteFile(fs, "/config.yaml", []byte("this isn't YAML"), 0o600))
+			},
+			want: nil,
+			wantErr: fmt.Errorf(
+				"failed to unmarshal config file: %w",
+				&yaml.TypeError{Errors: []string{"line 1: cannot unmarshal !!str `this is...` into config.Finch"}},
+			),
+		},
+		{
+			name: "config file doesn't pass validation",
+			path: "/config.yaml",
+			mockSvc: func(fs afero.Fs, l *mocks.Logger, deps *mocks.LoadSystemDeps, mem *mocks.Memory) {
+				require.NoError(t, afero.WriteFile(fs, "/config.yaml", []byte(`memory: 4GiB
+cpus: 0
+`,
+				), 0o600))
+			},
+			want: nil,
+			wantErr: fmt.Errorf(
+				"failed to validate config file: %w",
+				errors.New("specified number of CPUs (0) must be greater than 0"),
+			),
+		},
 	}
 
 	darwinTestCases := []struct {
@@ -121,33 +149,6 @@ cpus: 8
 			},
 			wantErr: nil,
 		},
-		{
-			name: "config file does not contain valid YAML",
-			path: "/config.yaml",
-			mockSvc: func(fs afero.Fs, l *mocks.Logger, deps *mocks.LoadSystemDeps, mem *mocks.Memory) {
-				require.NoError(t, afero.WriteFile(fs, "/config.yaml", []byte("this isn't YAML"), 0o600))
-			},
-			want: nil,
-			wantErr: fmt.Errorf(
-				"failed to unmarshal config file: %w",
-				&yaml.TypeError{Errors: []string{"line 1: cannot unmarshal !!str `this is...` into config.Finch"}},
-			),
-		},
-		{
-			name: "config file doesn't pass validation",
-			path: "/config.yaml",
-			mockSvc: func(fs afero.Fs, l *mocks.Logger, deps *mocks.LoadSystemDeps, mem *mocks.Memory) {
-				require.NoError(t, afero.WriteFile(fs, "/config.yaml", []byte(`memory: 4GiB
-cpus: 0
-`,
-				), 0o600))
-			},
-			want: nil,
-			wantErr: fmt.Errorf(
-				"failed to validate config file: %w",
-				errors.New("specified number of CPUs (0) must be greater than 0"),
-			),
-		},
 	}
 
 	windowsTestCases := []struct {
@@ -237,39 +238,12 @@ cpus: 8
 			},
 			wantErr: nil,
 		},
-		{
-			name: "config file does not contain valid YAML",
-			path: "/config.yaml",
-			mockSvc: func(fs afero.Fs, l *mocks.Logger, deps *mocks.LoadSystemDeps, mem *mocks.Memory) {
-				require.NoError(t, afero.WriteFile(fs, "/config.yaml", []byte("this isn't YAML"), 0o600))
-			},
-			want: nil,
-			wantErr: fmt.Errorf(
-				"failed to unmarshal config file: %w",
-				&yaml.TypeError{Errors: []string{"line 1: cannot unmarshal !!str `this is...` into config.Finch"}},
-			),
-		},
-		{
-			name: "config file doesn't pass validation",
-			path: "/config.yaml",
-			mockSvc: func(fs afero.Fs, l *mocks.Logger, deps *mocks.LoadSystemDeps, mem *mocks.Memory) {
-				require.NoError(t, afero.WriteFile(fs, "/config.yaml", []byte(`memory: 4GiB
-cpus: 0
-`,
-				), 0o600))
-			},
-			want: nil,
-			wantErr: fmt.Errorf(
-				"failed to validate config file: %w",
-				errors.New("specified number of CPUs (0) must be greater than 0"),
-			),
-		},
 	}
 
 	if runtime.GOOS == "windows" {
-		testCases = windowsTestCases
+		testCases = append(testCases, windowsTestCases...)
 	} else if runtime.GOOS == "darwin" {
-		testCases = darwinTestCases
+		testCases = append(testCases, darwinTestCases...)
 	} else {
 		t.Skip("Not running tests for " + runtime.GOOS)
 	}

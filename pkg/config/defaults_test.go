@@ -15,7 +15,7 @@ import (
 )
 
 func Test_applyDefaultsDarwin(t *testing.T) {
-	if runtime.GOOS == "windows" {
+	if runtime.GOOS != "darwin" {
 		t.Skip()
 	}
 	t.Parallel()
@@ -127,6 +127,23 @@ func Test_applyDefaultsWindows(t *testing.T) {
 				CPUs:   pointer.Int(2),
 				Memory: pointer.String("3GiB"),
 				VMType: pointer.String("wsl2"),
+			},
+		},
+		{
+			name: "does not fill wsl2 default when it's set to something else",
+			cfg: &Finch{
+				VMType: pointer.String("wsl"),
+			},
+			mockSvc: func(deps *mocks.LoadSystemDeps, mem *mocks.Memory) {
+				deps.EXPECT().NumCPU().Return(8)
+				// 12,884,901,888 == 12GiB
+				mem.EXPECT().TotalMemory().Return(uint64(12_884_901_888))
+
+			},
+			want: &Finch{
+				CPUs:   pointer.Int(2),
+				Memory: pointer.String("3GiB"),
+				VMType: pointer.String("wsl"),
 			},
 		},
 	}

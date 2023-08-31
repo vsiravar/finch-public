@@ -30,6 +30,7 @@ const nerdctlCmdName = "nerdctl"
 //go:generate mockgen -copyright_file=../../copyright_header -destination=../../pkg/mocks/nerdctl_cmd_system_deps.go -package=mocks -mock_names NerdctlCommandSystemDeps=NerdctlCommandSystemDeps -source=nerdctl.go NerdctlCommandSystemDeps
 type NerdctlCommandSystemDeps interface {
 	system.EnvChecker
+	system.WorkingDirectory
 }
 
 type nerdctlCommandCreator struct {
@@ -156,7 +157,8 @@ func (nc *nerdctlCommand) run(cmdName string, args []string) error {
 
 	// Add -E to sudo command in order to preserve existing environment variables, more info:
 	// https://stackoverflow.com/questions/8633461/how-to-keep-environment-variables-when-using-sudo/8633575#8633575
-	limaArgs := append([]string{"shell", limaInstanceName, "sudo", "-E"}, passedEnvArgs...)
+
+	limaArgs := append(nc.GetLimaArgs(), passedEnvArgs...)
 
 	limaArgs = append(limaArgs, []string{nerdctlCmdName, cmdName}...)
 

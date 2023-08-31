@@ -14,7 +14,7 @@ func (nc *nerdctlCommand) GetLimaArgs() []string {
 		return append([]string{"shell", limaInstanceName, "sudo", "-E"})
 	}
 	wslPath := convertToWSLPath(wd)
-	return append([]string{"shell", "--workdir", wslPath, "limaInstanceName", "sudo", "-E"})
+	return append([]string{"shell", "--workdir", wslPath, limaInstanceName, "sudo", "-E"})
 }
 
 func convertToWSLPath(winPath string) string {

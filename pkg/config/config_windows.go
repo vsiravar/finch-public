@@ -5,7 +5,10 @@
 
 package config
 
-func SupportsWSL2() bool {
-	// TODO: Add business logic
-	return true
+import (
+	"github.com/runfinch/finch/pkg/command"
+)
+
+func SupportsWSL2(cmdCreator command.Creator) error {
+	return cmdCreator.Create("wsl", "--set-default-version", "2").Run()
 }

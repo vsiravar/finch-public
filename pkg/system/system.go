@@ -86,3 +86,7 @@ type RuntimeOSGetter interface {
 type UserHomeDir interface {
 	GetUserHome() (string, error)
 }
+
+type WorkingDirectory interface {
+	GetWd() (string, error)
+}

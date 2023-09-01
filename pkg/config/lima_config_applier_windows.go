@@ -14,8 +14,9 @@ import (
 
 func (lca *limaConfigApplier) applyInit(limaCfg *limayaml.LimaYAML) (*limayaml.LimaYAML, error) {
 	// Check if system supports wsl2
-	if !SupportsWSL2() {
-		return nil, fmt.Errorf("wsl2 is not supported by your system")
+
+	if err := SupportsWSL2(lca.cmdCreator); err != nil {
+		return nil, fmt.Errorf("wsl2 is not supported by your system %w", err)
 	}
 	if *lca.cfg.VMType == "wsl2" {
 		limaCfg.MountType = pointer.String("wsl2")

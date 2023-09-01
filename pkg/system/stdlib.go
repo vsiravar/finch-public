@@ -73,3 +73,7 @@ func (s *StdLib) OS() string {
 func (s *StdLib) GetUserHome() (string, error) {
 	return os.UserHomeDir()
 }
+
+func (s *StdLib) GetWd() (string, error) {
+	return os.Getwd()
+}

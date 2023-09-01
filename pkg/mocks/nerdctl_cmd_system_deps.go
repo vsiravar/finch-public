@@ -36,6 +36,21 @@ func (m *NerdctlCommandSystemDeps) EXPECT() *NerdctlCommandSystemDepsMockRecorde
 	return m.recorder
 }
 
+// GetWd mocks base method.
+func (m *NerdctlCommandSystemDeps) GetWd() (string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetWd")
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetWd indicates an expected call of GetWd.
+func (mr *NerdctlCommandSystemDepsMockRecorder) GetWd() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetWd", reflect.TypeOf((*NerdctlCommandSystemDeps)(nil).GetWd))
+}
+
 // LookupEnv mocks base method.
 func (m *NerdctlCommandSystemDeps) LookupEnv(key string) (string, bool) {
 	m.ctrl.T.Helper()

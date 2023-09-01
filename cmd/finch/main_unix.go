@@ -45,3 +45,7 @@ func virtualMachineCommands(
 		disk.NewUserDataDiskManager(lcc, ecc, &afero.OsFs{}, fp, system.NewStdLib().Env("HOME"), fc),
 	)
 }
+
+func handleFilePath(path string) string {
+	return path
+}

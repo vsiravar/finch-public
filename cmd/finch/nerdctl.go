@@ -122,6 +122,10 @@ func (nc *nerdctlCommand) run(cmdName string, args []string) error {
 				arg = fmt.Sprintf("%s%s", arg[0:11], resolvedIP)
 			}
 			nerdctlArgs = append(nerdctlArgs, arg)
+		case strings.HasPrefix(arg, "-f") || strings.HasPrefix(arg, "--file"):
+			args[i+1] = handleFilePath(args[i+1])
+			nerdctlArgs = append(nerdctlArgs, arg)
+
 		default:
 			nerdctlArgs = append(nerdctlArgs, arg)
 		}

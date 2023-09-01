@@ -6,11 +6,13 @@ import (
 )
 
 func convertToWSLPath(winPath string) (string, error) {
-	var path string
+	var path = filepath.Clean(winPath)
 	var err error
 	if !filepath.IsAbs(winPath) {
 		path, err = filepath.Abs(winPath)
-		return "", err
+		if err != nil {
+			return "", err
+		}
 	}
 	if len(path) >= 2 && path[1] == ':' {
 		drive := strings.ToLower(string(path[0]))

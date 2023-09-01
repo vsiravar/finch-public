@@ -31,6 +31,9 @@ const nerdctlCmdName = "nerdctl"
 type NerdctlCommandSystemDeps interface {
 	system.EnvChecker
 	system.WorkingDirectory
+	system.FilePathJoiner
+	system.AbsFilePath
+	system.FilePathToSlash
 }
 
 type nerdctlCommandCreator struct {
@@ -88,16 +91,16 @@ func (nc *nerdctlCommand) run(cmdName string, args []string) error {
 		skip                        bool
 	)
 
-	// convert build context to wsl path for windows, no-op unix
+	// convert build context to wsl path for windows, handleFilePath no-op unix
 
 	if cmdName == "build" || cmdName == "builder" {
 		if args[len(args)-1] != "--debug" {
-			args[len(args)-1], err = handleFilePath(args[len(args)-1])
+			args[len(args)-1], err = handleFilePath(nc.systemDeps, args[len(args)-1])
 			if err != nil {
 				return err
 			}
 		} else {
-			args[len(args)-2], err = handleFilePath(args[len(args)-2])
+			args[len(args)-2], err = handleFilePath(nc.systemDeps, args[len(args)-2])
 			if err != nil {
 				return err
 			}
@@ -140,14 +143,14 @@ func (nc *nerdctlCommand) run(cmdName string, args []string) error {
 		case strings.HasPrefix(arg, "-f") || strings.HasPrefix(arg, "--file") ||
 			strings.HasPrefix(arg, "--project-directory") || strings.HasPrefix(arg, "--env-file") ||
 			strings.HasPrefix(arg, "--cosign-key") || strings.HasPrefix(arg, "-label-file"):
-			args[i+1], err = handleFilePath(args[i+1])
+			args[i+1], err = handleFilePath(nc.systemDeps, args[i+1])
 			if err != nil {
 				return err
 			}
 			nerdctlArgs = append(nerdctlArgs, arg)
 
 		case strings.HasPrefix(arg, "-v") || strings.HasPrefix(arg, "--volume"):
-			args[i+1], err = handleVolume(args[i+1])
+			args[i+1], err = handleVolume(nc.systemDeps, args[i+1])
 			if err != nil {
 				return err
 			}

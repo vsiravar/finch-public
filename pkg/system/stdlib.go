@@ -77,3 +77,11 @@ func (s *StdLib) GetUserHome() (string, error) {
 func (s *StdLib) GetWd() (string, error) {
 	return os.Getwd()
 }
+
+func (s *StdLib) FilePathAbs(elem string) (string, error) {
+	return filepath.Abs(elem)
+}
+
+func (s *StdLib) FilePathToSlash(elem string) string {
+	return filepath.ToSlash(elem)
+}

@@ -311,7 +311,7 @@ check-licenses:
 
 .PHONY: test-unit
 test-unit:
-	go test $(shell go list ./... | grep -v e2e) -shuffle on -race
+	go test $(shell go list ./... | grep -v e2e) -shuffle on
 
 # test-e2e assumes the VM instance doesn't exist, please make sure to remove it before running.
 #

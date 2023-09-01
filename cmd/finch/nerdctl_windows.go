@@ -6,14 +6,13 @@ import (
 	"strings"
 )
 
-func convertToWSLPath(winPath string) (string, error) {
+func convertToWSLPath(systemDeps NerdctlCommandSystemDeps, winPath string) (string, error) {
 	var path = filepath.Clean(winPath)
 	var err error
-	if !filepath.IsAbs(winPath) {
-		path, err = filepath.Abs(winPath)
-		if err != nil {
-			return "", err
-		}
+
+	path, err = systemDeps.FilePathAbs(winPath)
+	if err != nil {
+		return "", err
 	}
 	if len(path) >= 2 && path[1] == ':' {
 		drive := strings.ToLower(string(path[0]))
@@ -21,17 +20,16 @@ func convertToWSLPath(winPath string) (string, error) {
 		if len(path) > 3 {
 			remainingPath = path[3:]
 		}
-		return filepath.ToSlash(filepath.Join(string(filepath.Separator), "mnt", drive, remainingPath)), nil
+		return systemDeps.FilePathToSlash(systemDeps.FilePathJoin(string(filepath.Separator), "mnt", drive, remainingPath)), nil
 	}
 	return path, nil
 }
 
-func handleFilePath(filePath string) (string, error) {
-	return convertToWSLPath(filePath)
+func handleFilePath(systemDeps NerdctlCommandSystemDeps, filePath string) (string, error) {
+	return convertToWSLPath(systemDeps, filePath)
 }
 
-// Copied from https://github.com/rancher-sandbox/rancher-desktop/blob/5cfeb80aba3f9c9d85d840ed1143caed06d21c02/src/go/nerdctl-stub/main_windows.go#L69
-func handleVolume(v string) (string, error) {
+func handleVolume(systemDeps NerdctlCommandSystemDeps, v string) (string, error) {
 	cleanArg := v
 	readWrite := ""
 	if strings.HasSuffix(v, ":ro") || strings.HasSuffix(v, ":rw") {
@@ -45,7 +43,7 @@ func handleVolume(v string) (string, error) {
 	}
 	hostPath := cleanArg[:colonIndex]
 	containerPath := cleanArg[colonIndex+1:]
-	wslHostPath, err := convertToWSLPath(hostPath)
+	wslHostPath, err := convertToWSLPath(systemDeps, hostPath)
 	if err != nil {
 		return "", fmt.Errorf("could not get volume host path for %s: %w", v, err)
 	}

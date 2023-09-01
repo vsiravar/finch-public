@@ -1,9 +1,9 @@
 package main
 
-func handleFilePath(path string) (string, error) {
+func handleFilePath(systemDeps NerdctlCommandSystemDeps, path string) (string, error) {
 	return path, nil
 }
 
-func handleVolume(v string) (string, error) {
+func handleVolume(systemDeps NerdctlCommandSystemDeps, v string) (string, error) {
 	return v, nil
 }

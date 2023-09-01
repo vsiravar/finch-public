@@ -8,7 +8,7 @@ func (nc *nerdctlCommand) GetLimaArgs() []string {
 		nc.logger.Warnln("failed to get working directory, will default to user home with error %s", err.Error())
 		return append([]string{"shell", limaInstanceName, "sudo", "-E"})
 	}
-	wslPath, err := convertToWSLPath(wd)
+	wslPath, err := convertToWSLPath(nc.systemDeps, wd)
 	if err != nil {
 		nc.logger.Warnln("failed to convert to WSL path, will default to user home with error %s", err.Error())
 		return append([]string{"shell", limaInstanceName, "sudo", "-E"})

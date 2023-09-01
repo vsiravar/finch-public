@@ -90,3 +90,13 @@ type UserHomeDir interface {
 type WorkingDirectory interface {
 	GetWd() (string, error)
 }
+
+// AbsFilePath mocks out filepath.Abs.
+type AbsFilePath interface {
+	FilePathAbs(elem string) (string, error)
+}
+
+// FilePathToSlash mocks out filepath.ToSlash
+type FilePathToSlash interface {
+	FilePathToSlash(elem string) string
+}

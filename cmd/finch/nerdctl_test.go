@@ -26,6 +26,10 @@ var testStdoutRs = []command.Replacement{
 	{Source: "nerdctl", Target: "finch"},
 }
 
+var limactlArgs []interface{}
+
+var limactlWindowsArgs = []interface{}{"shell", limaInstanceName, "sudo", "-E"}
+
 func TestNerdctlCommandCreator_create(t *testing.T) {
 	t.Parallel()
 

@@ -123,7 +123,24 @@ func (nc *nerdctlCommand) run(cmdName string, args []string) error {
 			}
 			nerdctlArgs = append(nerdctlArgs, arg)
 		case strings.HasPrefix(arg, "-f") || strings.HasPrefix(arg, "--file"):
-			args[i+1] = handleFilePath(args[i+1])
+			args[i+1], err = handleFilePath(args[i+1])
+			if err != nil {
+				return err
+			}
+			nerdctlArgs = append(nerdctlArgs, arg)
+		// convert build context to wsl path for windows, no-op unix
+		case strings.HasPrefix(arg, "build"):
+			if args[len(args)-1] != "debug" {
+				args[len(args)-1], err = handleFilePath(args[len(args)-1])
+				if err != nil {
+					return err
+				}
+			} else {
+				args[len(args)-2], err = handleFilePath(args[len(args)-2])
+				if err != nil {
+					return err
+				}
+			}
 			nerdctlArgs = append(nerdctlArgs, arg)
 
 		default:

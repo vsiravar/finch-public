@@ -1,7 +1,7 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: Apache-2.0
 
-//go:build !windows
+//go:build darwin
 
 package main
 
@@ -44,8 +44,4 @@ func virtualMachineCommands(
 		fs,
 		disk.NewUserDataDiskManager(lcc, ecc, &afero.OsFs{}, fp, system.NewStdLib().Env("HOME"), fc),
 	)
-}
-
-func handleFilePath(path string) string {
-	return path
 }

@@ -137,8 +137,17 @@ func (nc *nerdctlCommand) run(cmdName string, args []string) error {
 				arg = fmt.Sprintf("%s%s", arg[0:11], resolvedIP)
 			}
 			nerdctlArgs = append(nerdctlArgs, arg)
-		case strings.HasPrefix(arg, "-f") || strings.HasPrefix(arg, "--file"):
+		case strings.HasPrefix(arg, "-f") || strings.HasPrefix(arg, "--file") ||
+			strings.HasPrefix(arg, "--project-directory") || strings.HasPrefix(arg, "--env-file") ||
+			strings.HasPrefix(arg, "--cosign-key") || strings.HasPrefix(arg, "-label-file"):
 			args[i+1], err = handleFilePath(args[i+1])
+			if err != nil {
+				return err
+			}
+			nerdctlArgs = append(nerdctlArgs, arg)
+
+		case strings.HasPrefix(arg, "-v") || strings.HasPrefix(arg, "--volume"):
+			args[i+1], err = handleVolume(args[i+1])
 			if err != nil {
 				return err
 			}

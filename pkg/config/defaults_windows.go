@@ -10,7 +10,7 @@ import (
 	"github.com/xorcare/pointer"
 )
 
-// Does not matter if Rosetta is set, no-op
+// Does not matter if Rosetta is set, no-op.
 func rosettaDefault(cfg *Finch) {
 }
 

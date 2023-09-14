@@ -28,8 +28,29 @@ func convertToWSLPath(systemDeps NerdctlCommandSystemDeps, winPath string) (stri
 	return path, nil
 }
 
-func handleFilePath(systemDeps NerdctlCommandSystemDeps, filePath string) (string, error) {
-	return convertToWSLPath(systemDeps, filePath)
+func handleFilePath(systemDeps NerdctlCommandSystemDeps, args []string, index int) error {
+	var prefix = args[index]
+
+	// If --filename="<filepath> then we need to cut <filepath> and convert that to wsl path
+	if strings.Contains(args[index], "=") {
+		before, after, _ := strings.Cut(prefix, "=")
+		wslPath, err := convertToWSLPath(systemDeps, after)
+		if err != nil {
+			return err
+		}
+		args[index] = fmt.Sprintf("%s=%s", before, wslPath)
+	} else {
+		if (index + 1) < len(args) {
+			wslPath, err := convertToWSLPath(systemDeps, args[index+1])
+			if err != nil {
+				return err
+			}
+			args[index+1] = wslPath
+		} else {
+			fmt.Errorf("invalid positional parameter for %s", prefix)
+		}
+	}
+	return nil
 }
 
 func handleVolume(systemDeps NerdctlCommandSystemDeps, v string) (string, error) {
@@ -65,4 +86,16 @@ func handleVolume(systemDeps NerdctlCommandSystemDeps, v string) (string, error)
 		return "", fmt.Errorf("could not get volume host path for %s: %w", v, err)
 	}
 	return wslHostPath + ":" + containerPath + readWrite, nil
+}
+
+var aliasMap = map[string]string{
+	"build":  "image build",
+	"cp":     "container cp",
+	"create": "container create",
+}
+
+var argHandlerMap = map[string]map[string]argHandler{
+	"image build": {
+		"-f": handleFilePath,
+	},
 }

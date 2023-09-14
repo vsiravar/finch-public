@@ -43,6 +43,8 @@ type nerdctlCommandCreator struct {
 	fs         afero.Fs
 }
 
+type argHandler func(systemDeps NerdctlCommandSystemDeps, string []string, index int) error
+
 func newNerdctlCommandCreator(
 	creator command.LimaCmdCreator,
 	systemDeps NerdctlCommandSystemDeps,
@@ -92,21 +94,39 @@ func (nc *nerdctlCommand) run(cmdName string, args []string) error {
 	)
 
 	// convert build context to wsl path for windows, handleFilePath no-op unix
+	alias, ok := aliasMap[cmdName]
+	if ok {
+		cmdName = alias
+	}
 
-	if cmdName == "build" || cmdName == "builder" {
-		if args[len(args)-1] != "--debug" {
-			args[len(args)-1], err = handleFilePath(nc.systemDeps, args[len(args)-1])
-			if err != nil {
-				return err
-			}
-		} else {
-			args[len(args)-2], err = handleFilePath(nc.systemDeps, args[len(args)-2])
-			if err != nil {
-				return err
+	//
+	//if cmdName == "image build" {
+	//	if args[len(args)-1] != "--debug" {
+	//		args[len(args)-1], err = handleFilePath(nc.systemDeps, args[len(args)-1])
+	//		if err != nil {
+	//			return err
+	//		}
+	//	} else {
+	//		args[len(args)-2], err = handleFilePath(nc.systemDeps, args[len(args)-2])
+	//		if err != nil {
+	//			return err
+	//		}
+	//	}
+	//}
+	for i, arg := range args {
+		// First check if command requires any handling
+		aMap, ok := argHandlerMap[cmdName]
+		if ok {
+			// Check if argument for the command needs handling, sometimes it can be --file=<filename>
+			b, _, _ := strings.Cut(arg, "=")
+			h, ok := aMap[b]
+			if ok {
+				err = h(nc.systemDeps, args, i)
+				if err != nil {
+					return err
+				}
 			}
 		}
-	}
-	for i, arg := range args {
 		// parsing environment values from the command line may pre-fetch and
 		// consume the next argument; this loop variable will skip these pre-consumed
 		// entries from the command line
@@ -140,17 +160,6 @@ func (nc *nerdctlCommand) run(cmdName string, args []string) error {
 				arg = fmt.Sprintf("%s%s", arg[0:11], resolvedIP)
 			}
 			nerdctlArgs = append(nerdctlArgs, arg)
-		case strings.HasPrefix(arg, "-f") || strings.HasPrefix(arg, "--file") ||
-			strings.HasPrefix(arg, "--project-directory") || strings.HasPrefix(arg, "--env-file") ||
-			strings.HasPrefix(arg, "--cosign-key") || strings.HasPrefix(arg, "--label-file") || strings.HasPrefix(arg, "--cidfile"):
-			args[i+1], err = handleFilePath(nc.systemDeps, args[i+1])
-			if err != nil {
-				return err
-			}
-			nerdctlArgs = append(nerdctlArgs, arg)
-
-		case strings.HasPrefix(arg, "-v") || strings.HasPrefix(arg, "--volume"):
-			args[i+1], err = handleVolume(nc.systemDeps, args[i+1])
 			if err != nil {
 				return err
 			}

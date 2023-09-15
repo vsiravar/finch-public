@@ -203,7 +203,7 @@ func (nc *nerdctlCommand) run(cmdName string, args []string) error {
 
 	limaArgs := append(nc.GetLimaArgs(), passedEnvArgs...)
 
-	limaArgs = append(limaArgs, []string{nerdctlCmdName, cmdName}...)
+	limaArgs = append(limaArgs, append([]string{nerdctlCmdName}, strings.Fields(cmdName)...)...)
 
 	var finalArgs []string
 	for key, val := range envVars {

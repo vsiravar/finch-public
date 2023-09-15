@@ -125,6 +125,8 @@ func (nc *nerdctlCommand) run(cmdName string, args []string) error {
 				if err != nil {
 					return err
 				}
+				// This is required when the positional argument at i is mutated by argHandler, eg -v=C:\Users:/tmp:ro
+				arg = args[i]
 			}
 		}
 		// parsing environment values from the command line may pre-fetch and

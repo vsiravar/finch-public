@@ -47,7 +47,7 @@ mounts:
     # Warning: It looks like PHP filesystem access does not work correctly when
     # the cache is disabled.
     # 🟢 Builtin default: true
-    cache: null
+    cache: false
     # SSHFS has an optional flag called 'follow_symlinks'. This allows mounts
     # to be properly resolved in the guest os and allow for access to the
     # contents of the symlink. As a result, symlinked files & folders on the Host
@@ -126,10 +126,14 @@ containerd:
   user: false
 #  # Override containerd archive
 #  # 🟢 Builtin default: hard-coded URL with hard-coded digest (see the output of `limactl info | jq .defaultTemplate.containerd.archives`)
-#  archives:
-#  - location: "~/Downloads/nerdctl-full-X.Y.Z-linux-amd64.tar.gz"
-#    arch: "x86_64"
-#    digest: "sha256:..."
+ archives:
+ - location: "https://github.com/containerd/nerdctl/releases/download/v1.6.0/nerdctl-full-1.6.0-linux-amd64.tar.gz"
+   arch: "x86_64"
+   digest: "sha256:2c5c43a8b77ed62090241027361baa62d8fb70a759bc9e7a82c637135598701f"
+ - location: "https://github.com/containerd/nerdctl/releases/download/v1.6.0/nerdctl-full-1.6.0-linux-arm64.tar.gz"
+   arch: "aarch64"
+   digest: "1f5c2db10b4340197dfa63cfee749ad7d0b60d774433d84181815c899c359c80"
+   
 
 # Provisioning scripts need to be idempotent because they might be called
 # multiple times, e.g. when the host VM is being restarted.

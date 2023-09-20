@@ -47,7 +47,7 @@ mounts:
     # Warning: It looks like PHP filesystem access does not work correctly when
     # the cache is disabled.
     # 🟢 Builtin default: true
-    cache: false
+    cache: null
     # SSHFS has an optional flag called 'follow_symlinks'. This allows mounts
     # to be properly resolved in the guest os and allow for access to the
     # contents of the symlink. As a result, symlinked files & folders on the Host
